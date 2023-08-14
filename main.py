@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Body
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 app = FastAPI()
@@ -9,16 +9,29 @@ app.version = "0.0.1"
 
 
 class Movie(BaseModel):
-    name: str
+    # Campo custom
+    name: str = Field(min_length=5, max_length=12)
+    # Campo  opcional
     id: Optional[int] = None
-    category: str
+    category: str = Field(min_length=7, max_length=50)
+    duration: int = Field(le=100, default=2)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id": 1,
+                "name": "algo",
+                "category": "bien_divertida",
+                "duration": 27,
+            }
+        }
 
 
 movies = [
-    {"name": "pelicula_a", "id": 3, "category": "thriller"},
-    {"name": "pelicula", "id": 5, "category": "action"},
-    {"name": "pelicula_s", "id": 1, "category": "comedy"},
-    {"name": "pelicula_b", "id": 2, "category": "comedy"},
+    {"name": "pelicula_a", "id": 3, "category": "thriller", "duration": 55},
+    {"name": "pelicula", "id": 5, "category": "action", "duration": 55},
+    {"name": "pelicula_s", "id": 1, "category": "comedy", "duration": 55},
+    {"name": "pelicula_b", "id": 2, "category": "comedy", "duration": 8},
 ]
 
 
@@ -57,6 +70,7 @@ def update_movie(id: int, movie: Movie):
         if item["id"] == id:
             item["name"] = movie.name
             item["category"] = movie.category
+            item["duration"] = movie.duration
             return movies
 
 
